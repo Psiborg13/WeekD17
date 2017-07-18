@@ -1,5 +1,4 @@
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.math.BigInteger;
@@ -7,12 +6,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 
-public class BadSudokuSolver {
+public class StupidityTester {
 
 	static int[][] board = new int[9][9];
 	static BigInteger fill;
+	static BigInteger fillO;
+	static BigInteger maxStupidity;
 	static int bigIntLength = 81;
 
 	public static void main(String[] args) throws IOException {
@@ -23,17 +23,26 @@ public class BadSudokuSolver {
 			temp+="1";
 		}
 		fill = new BigInteger(temp);
+		String temp1 = "";
+		for (int i = 0; i < bigIntLength; i++) {
+			temp1+="9";
+		}
+		maxStupidity = new BigInteger(temp1);
+		fillO = fill;
 		boolean rows = false;
 		boolean columns = false;
 		boolean squares = false;
-		while((!rows || !columns || !squares) && fill.toString().length()==bigIntLength){
+		long startTime = System.currentTimeMillis();
+		while(fill.max(fillO.add(new BigInteger("100000")))!=fill){
 			int[][] newBoard = increment();
 			rows = checkRows(newBoard);
 			columns = checkColumns(newBoard);
 			squares = checkSquares(newBoard);
-			System.out.println(fill);
 		}
-		printBoard();
+		long tenThousandTime = System.currentTimeMillis() - startTime;
+		System.out.println((maxStupidity.subtract(fill).divide(new BigInteger("100000")).
+				multiply(new BigInteger(tenThousandTime+"").divide(new BigInteger("1000")
+						.divide(new BigInteger("60").divide(new BigInteger("60").divide(new BigInteger("24"))))))));
 	}
 
 	public static void loadBoard() throws IOException{
