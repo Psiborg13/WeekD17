@@ -11,12 +11,22 @@ public class GoodSudokuSolver {
 
 	static SudokuNumber[][] lastBoard = new SudokuNumber[9][9];
 	static SudokuNumber[][] board = new SudokuNumber[9][9];
+	static SudokuNumber[][] newBoard;
+	static SudokuNumber[][] lastNewBoard;
 
 	public static void main(String[] args) throws IOException {
 		loadBoard();
 		printBoard();
 		boolean completed = false;
 		makePossibilities();
+		for (int i = 0; i < 9; i++) {
+			for (int j = 0; j < 9; j++) {
+				if(board[i][j].num==0){
+					System.out.println(board[i][j].getPossibilities().toString());
+				}
+			}
+		}
+		//System.exit(0);
 		while(!completed){
 			reduceNumbers();
 			completed = isFull();
@@ -78,7 +88,7 @@ public class GoodSudokuSolver {
 		if(!equalBoards()){
 			int x = -1;
 			int y = -1;
-			for (int i = 2; i < 9; i++) {
+			for (int i = 2; i <= 9; i++) {
 				for (int j = 0; j < board.length; j++) {
 					for (int k = 0; k < board.length; k++) {
 						if(x==-1&&board[j][k].num==0&&board[j][k].getPossibilities().size() == i){
@@ -136,9 +146,99 @@ public class GoodSudokuSolver {
 	}
 
 	public static SudokuNumber[][] guess(int x, int y){
-		SudokuNumber[][] newBoard = board;
+		newBoard = new SudokuNumber[9][9];
+		for (int i = 0; i < board.length; i++) {
+			for (int j = 0; j < board.length; j++) {
+				//TODO Deep Copy, whatever that means
+			}
+		}
+		System.out.println();
+		System.out.println();
+		printBoard();
+		newBoard[0][0].num=3000000;
+		printBoard();
+		System.exit(0);
+		lastNewBoard = board;
 		newBoard[x][y].num = newBoard[x][y].getPossibilities().get(0);
- 		return new SudokuNumber[1][1];
+		boolean completed = false;
+		boolean working = true;
+		while(!completed && working){
+			working = guessAtReducingNumbers();
+			completed = isFull();
+			printBoard();
+		}
+		if(working){
+			return newBoard;
+		} else{
+			return new SudokuNumber[1][1];
+		}
+	}
+	
+	public static boolean guessAtReducingNumbers(){
+		boolean geves = true;
+		for (int i = 0; i < board.length; i++) {
+			for (int j = 0; j < board.length; j++) {
+				if(!board[i][j].equals(lastBoard[i][j])){
+					geves = false;
+				}
+			}
+		}
+		if(geves){
+			int x = -1;
+			int y = -1;
+			for (int i = 2; i < 9; i++) {
+				for (int j = 0; j < newBoard.length; j++) {
+					for (int k = 0; k < newBoard.length; k++) {
+						if(x==-1&&newBoard[j][k].num==0&&newBoard[j][k].getPossibilities().size() == i){
+							x = j;
+							y = k;
+						}
+					}
+				}
+			}
+			if(x!=-1){
+				SudokuNumber[][] result = guess(x,y);
+				if(result.length == 1){
+					newBoard[x][y].getPossibilities().remove(0);
+				} else {
+					newBoard = result;
+				}
+			} else {
+				System.err.println("Code not working. This is totally an error. You're turning into a penguin. Stop it.");
+			}
+		}
+		else{
+			lastNewBoard = newBoard;
+			for (int x = 0; x < newBoard.length; x++) {
+				for (int y = 0; y < newBoard[0].length; y++) {
+					if(newBoard[x][y].num == 0){			
+						ArrayList<Integer> cant = new ArrayList<Integer>();
+						cant.clear();
+						for (int i = 0; i < newBoard.length; i++) {
+							cant.add(newBoard[x][i].num);
+							cant.add(newBoard[i][y].num);
+						}
+						for (int i = (x/3)*3; i < ((x/3)+1)*3; i++) {
+							for (int j = (y/3)*3; j < ((y/3)+1)*3; j++) {
+								cant.add(newBoard[i][j].num);
+							}
+						}
+						ArrayList<Integer> temp=new ArrayList<Integer>();
+						for(Integer e:newBoard[x][y].getPossibilities()){
+							temp.add(e);
+						}
+						temp.removeAll(cant);
+						newBoard[x][y].setPossibilities(temp);
+						if(newBoard[x][y].getPossibilities().size()==1){
+							newBoard[x][y].setNum(newBoard[x][y].getPossibilities().get(0));
+						} else if(newBoard[x][y].getPossibilities().size() == 0){
+							return false;
+						}
+					}
+				}
+			}
+		}
+		return true;
 	}
 	
 	public static void printBoard(){
