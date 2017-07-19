@@ -2,8 +2,8 @@ import java.util.ArrayList;
 
 public class SudokuNumber {
 	int num = 0;
-	ArrayList<Integer> possibilities = new ArrayList<Integer>();
-	public SudokuNumber(int num) { this.num = num;}
+	ArrayList<Integer> possibilities;
+	public SudokuNumber(int num) { this.num = num; possibilities = new ArrayList<Integer>();}
 	public int getNum() {
 		return num;
 	}
@@ -14,7 +14,6 @@ public class SudokuNumber {
 		return possibilities;
 	}
 	public void setPossibilities(ArrayList<Integer> possibilities) {
-		System.out.println("tt");
 		this.possibilities = possibilities;
 	}
 	public String toString(){

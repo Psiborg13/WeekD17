@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 public class GoodSudokuSolver {
 
+	static SudokuNumber[][] lastBoard = new SudokuNumber[9][9];
 	static SudokuNumber[][] board = new SudokuNumber[9][9];
 
 	public static void main(String[] args) throws IOException {
@@ -65,13 +66,7 @@ public class GoodSudokuSolver {
 				for (int k = 0; k < 3; k++) {
 					for (int l = 0; l < 3; l++) {
 						if(board[i*3+k][j*3+l].num == 0){
-							if(i*3+k==1&&j*3+l==1){
-								System.out.println("Thing");
-								System.out.println(nien);
-								System.out.println(nums);
-							}
 							board[i*3+k][j*3+l].setPossibilities(nien);
-							System.out.println(board[i*3+k][j*3+l].getPossibilities() + " "+i*3+k+" "+j*3+l);
 						}
 					}
 				}
@@ -80,37 +75,72 @@ public class GoodSudokuSolver {
 	}
 
 	public static void reduceNumbers(){
-		for (int x = 0; x < board.length; x++) {
-			for (int y = 0; y < board[0].length; y++) {
-				if(board[x][y].num == 0){
-					ArrayList<Integer> cant = new ArrayList<Integer>();
-					for (int i = 0; i < board.length; i++) {
-						cant.add(board[x][i].num);
-						cant.add(board[i][y].num);
-					}
-					for (int i = (x/3)*3; i < ((x/3)+1)*3; i++) {
-						for (int j = (y/3)*3; j < ((y/3)+1)*3; j++) {
-							cant.add(board[i][j].num);
+		if(!equalBoards()){
+			int x = -1;
+			int y = -1;
+			for (int i = 2; i < 9; i++) {
+				for (int j = 0; j < board.length; j++) {
+					for (int k = 0; k < board.length; k++) {
+						if(x==-1&&board[j][k].num==0&&board[j][k].getPossibilities().size() == i){
+							x = j;
+							y = k;
 						}
 					}
-					System.out.println(x+" "+y);
-					System.out.println(cant.toString()+" x "+board[x][y].getPossibilities());
-					board[x][y].getPossibilities().removeAll(cant);
-					//System.out.println(board[x][y].getPossibilities());
-					//System.out.println(cant);
-					//System.exit(0);
-					if(board[x][y].getPossibilities().size()==1){
-						board[x][y].setNum(board[x][y].getPossibilities().get(0));
-					} else if(board[x][y].getPossibilities().size() == 0){
-						
-						printBoard();
-						System.exit(0);
+				}
+			}
+			if(x!=-1){
+				SudokuNumber[][] result = guess(x,y);
+				if(result.length == 1){
+					board[x][y].getPossibilities().remove(0);
+				} else {
+					board = result;
+					printBoard();
+					System.exit(0);
+				}
+			} else {
+				System.err.println("Code not working. This is totally an error. What do you get when you multiply six by nine?");
+			}
+		}
+		else{
+			lastBoard = board;
+			for (int x = 0; x < board.length; x++) {
+				for (int y = 0; y < board[0].length; y++) {
+					if(board[x][y].num == 0){			
+						ArrayList<Integer> cant = new ArrayList<Integer>();
+						cant.clear();
+						for (int i = 0; i < board.length; i++) {
+							cant.add(board[x][i].num);
+							cant.add(board[i][y].num);
+						}
+						for (int i = (x/3)*3; i < ((x/3)+1)*3; i++) {
+							for (int j = (y/3)*3; j < ((y/3)+1)*3; j++) {
+								cant.add(board[i][j].num);
+							}
+						}
+						ArrayList<Integer> temp=new ArrayList<Integer>();
+						for(Integer e:board[x][y].getPossibilities()){
+							temp.add(e);
+						}
+						temp.removeAll(cant);
+						board[x][y].setPossibilities(temp);
+						if(board[x][y].getPossibilities().size()==1){
+							board[x][y].setNum(board[x][y].getPossibilities().get(0));
+						} else if(board[x][y].getPossibilities().size() == 0){
+							System.err.println("Code not working. This is totally an error. This is the one and only error.");
+							printBoard();
+						}
 					}
 				}
 			}
 		}
 	}
 
+	public static SudokuNumber[][] guess(int x, int y){
+		SudokuNumber[][] newBoard = board;
+		newBoard[x][y].num = newBoard[x][y].getPossibilities().get(0);
+ 		return new SudokuNumber[1][1];
+	}
+	
 	public static void printBoard(){
 		for (int i = 0; i < 13; i++) {
 			System.out.print("-");
@@ -143,6 +173,17 @@ public class GoodSudokuSolver {
 		for (int i = 0; i < board.length; i++) {
 			for (int j = 0; j < board[0].length; j++) {
 				if(board[i][j].num == 0){
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	public static boolean equalBoards(){
+		for (int i = 0; i < board.length; i++) {
+			for (int j = 0; j < board.length; j++) {
+				if(!board[i][j].equals(lastBoard[i][j])){
 					return false;
 				}
 			}
