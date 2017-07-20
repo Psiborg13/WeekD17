@@ -11,26 +11,16 @@ public class GoodSudokuSolver {
 
 	static SudokuNumber[][] lastBoard = new SudokuNumber[9][9];
 	static SudokuNumber[][] board = new SudokuNumber[9][9];
-	static SudokuNumber[][] newBoard;
-	static SudokuNumber[][] lastNewBoard;
 
 	public static void main(String[] args) throws IOException {
 		loadBoard();
 		printBoard();
 		boolean completed = false;
 		makePossibilities();
-		for (int i = 0; i < 9; i++) {
-			for (int j = 0; j < 9; j++) {
-				if(board[i][j].num==0){
-					System.out.println(board[i][j].getPossibilities().toString());
-				}
-			}
-		}
-		//System.exit(0);
-		while(!completed){
+		while(!completed){	
 			reduceNumbers();
 			completed = isFull();
-			printBoard();
+			//printBoard();
 		}
 		printBoard();
 	}
@@ -54,6 +44,13 @@ public class GoodSudokuSolver {
 			}
 			read.read();
 			read.read();
+		}
+		for (int i = 0; i < board.length; i++) {
+			for (int j = 0; j < board.length; j++) {
+				lastBoard[i][j] = new SudokuNumber(0);
+				lastBoard[i][j].setNum(board[i][j].num);
+				lastBoard[i][j].possibilities = board[i][j].possibilities;
+			}
 		}
 	}
 
@@ -85,7 +82,7 @@ public class GoodSudokuSolver {
 	}
 
 	public static void reduceNumbers(){
-		if(!equalBoards()){
+		if(equalBoards()){
 			int x = -1;
 			int y = -1;
 			for (int i = 2; i <= 9; i++) {
@@ -109,6 +106,7 @@ public class GoodSudokuSolver {
 				}
 			} else {
 				System.err.println("Code not working. This is totally an error. What do you get when you multiply six by nine?");
+				System.exit(0);
 			}
 		}
 		else{
@@ -137,7 +135,8 @@ public class GoodSudokuSolver {
 							board[x][y].setNum(board[x][y].getPossibilities().get(0));
 						} else if(board[x][y].getPossibilities().size() == 0){
 							System.err.println("Code not working. This is totally an error. This is the one and only error.");
-							printBoard();
+							System.exit(0);
+							//printBoard();
 						}
 					}
 				}
@@ -146,24 +145,29 @@ public class GoodSudokuSolver {
 	}
 
 	public static SudokuNumber[][] guess(int x, int y){
+		SudokuNumber[][] newBoard;
+		SudokuNumber[][] lastNewBoard;
 		newBoard = new SudokuNumber[9][9];
 		for (int i = 0; i < board.length; i++) {
 			for (int j = 0; j < board.length; j++) {
-				//TODO Deep Copy, whatever that means
+				newBoard[i][j] = new SudokuNumber(0);
+				newBoard[i][j].setNum(board[i][j].num);
+				newBoard[i][j].possibilities = board[i][j].possibilities;
 			}
 		}
-		System.out.println();
-		System.out.println();
-		printBoard();
-		newBoard[0][0].num=3000000;
-		printBoard();
-		System.exit(0);
-		lastNewBoard = board;
+		lastNewBoard = new SudokuNumber[9][9];
+		for (int i = 0; i < board.length; i++) {
+			for (int j = 0; j < board.length; j++) {
+				lastNewBoard[i][j] = new SudokuNumber(0);
+				lastNewBoard[i][j].setNum(board[i][j].num);
+				lastNewBoard[i][j].possibilities = board[i][j].possibilities;
+			}
+		}
 		newBoard[x][y].num = newBoard[x][y].getPossibilities().get(0);
 		boolean completed = false;
 		boolean working = true;
 		while(!completed && working){
-			working = guessAtReducingNumbers();
+			working = guessAtReducingNumbers(newBoard, lastNewBoard);
 			completed = isFull();
 			printBoard();
 		}
@@ -174,11 +178,12 @@ public class GoodSudokuSolver {
 		}
 	}
 	
-	public static boolean guessAtReducingNumbers(){
+	public static boolean guessAtReducingNumbers(SudokuNumber[][] newBoard, SudokuNumber[][] lastNewBoard){
 		boolean geves = true;
-		for (int i = 0; i < board.length; i++) {
-			for (int j = 0; j < board.length; j++) {
-				if(!board[i][j].equals(lastBoard[i][j])){
+		for (int i = 0; i < newBoard.length; i++) {
+			for (int j = 0; j < newBoard.length; j++) {
+				if(newBoard[i][j].num!=lastNewBoard[i][j].num){
+					System.out.println(newBoard[i][j]+"x"+lastNewBoard[i][j]);
 					geves = false;
 				}
 			}
@@ -283,7 +288,7 @@ public class GoodSudokuSolver {
 	public static boolean equalBoards(){
 		for (int i = 0; i < board.length; i++) {
 			for (int j = 0; j < board.length; j++) {
-				if(!board[i][j].equals(lastBoard[i][j])){
+				if(board[i][j].num!=lastBoard[i][j].num){
 					return false;
 				}
 			}
