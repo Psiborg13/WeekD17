@@ -28,7 +28,6 @@ public class GoodSudokuSolver {
 			//printBoard(board);
 		}
 		//printBoard(board);
-		System.out.println("This will never print out because I am bad at programming and life and being happy.");
 	}
 
 	
@@ -129,8 +128,6 @@ public class GoodSudokuSolver {
 				} else {
 					board = result;
 					printBoard(board);
-					System.out.println("Thing");
-					System.exit(0);
 				}
 			} else {
 				System.out.println("Code not working. This is totally an error. What do you get when you multiply six by nine?");
@@ -274,8 +271,9 @@ public class GoodSudokuSolver {
 				}
 			} else {
 				System.out.println("x is -1");
-				System.out.println(Arrays.toString(Thread.currentThread().getStackTrace()));
-				System.exit(0);
+				return new DumbPair(false, guessMade, guessFailed, newBoard, lastNewBoard);
+				//System.out.println(Arrays.toString(Thread.currentThread().getStackTrace()));
+				//System.exit(0);
 			}
 		}
 		else{

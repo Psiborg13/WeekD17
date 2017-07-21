@@ -14,7 +14,11 @@ public class SudokuNumber {
 		return possibilities;
 	}
 	public void setPossibilities(ArrayList<Integer> possibilities) {
-		this.possibilities = possibilities;
+		ArrayList<Integer> list=new ArrayList<Integer>();
+		for(Integer i:possibilities){
+			list.add(i);
+		}
+		this.possibilities=list;
 	}
 	public String toString(){
 		return num+"";
