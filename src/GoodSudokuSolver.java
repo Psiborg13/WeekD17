@@ -12,19 +12,31 @@ public class GoodSudokuSolver {
 	static SudokuNumber[][] lastBoard = new SudokuNumber[9][9];
 	static SudokuNumber[][] board = new SudokuNumber[9][9];
 
+	
+	
+	
+	
+	
 	public static void main(String[] args) throws IOException {
 		loadBoard();
-		printBoard();
+		printBoard(board);
 		boolean completed = false;
 		makePossibilities();
 		while(!completed){	
 			reduceNumbers();
-			completed = isFull();
-			//printBoard();
+			completed = isFull(board);
+			//printBoard(board);
 		}
-		printBoard();
+		//printBoard(board);
+		System.out.println("This will never print out because I am bad at programming and life and being happy.");
 	}
 
+	
+	
+	
+	
+	
+	
 	public static void loadBoard() throws IOException{
 		BufferedReader read = null;
 		try {
@@ -52,8 +64,16 @@ public class GoodSudokuSolver {
 				lastBoard[i][j].possibilities = board[i][j].possibilities;
 			}
 		}
+		lastBoard[0][0].num = 10;
 	}
 
+	
+	
+	
+	
+	
+	
+	
 	public static void makePossibilities(){
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
@@ -80,6 +100,13 @@ public class GoodSudokuSolver {
 			}
 		}
 	}
+	
+	
+	
+	
+	
+	
+	
 
 	public static void reduceNumbers(){
 		if(equalBoards()){
@@ -96,16 +123,17 @@ public class GoodSudokuSolver {
 				}
 			}
 			if(x!=-1){
-				SudokuNumber[][] result = guess(x,y);
+				SudokuNumber[][] result = guess(board,x,y);
 				if(result.length == 1){
 					board[x][y].getPossibilities().remove(0);
 				} else {
 					board = result;
-					printBoard();
+					printBoard(board);
+					System.out.println("Thing");
 					System.exit(0);
 				}
 			} else {
-				System.err.println("Code not working. This is totally an error. What do you get when you multiply six by nine?");
+				System.out.println("Code not working. This is totally an error. What do you get when you multiply six by nine?");
 				System.exit(0);
 			}
 		}
@@ -134,9 +162,9 @@ public class GoodSudokuSolver {
 						if(board[x][y].getPossibilities().size()==1){
 							board[x][y].setNum(board[x][y].getPossibilities().get(0));
 						} else if(board[x][y].getPossibilities().size() == 0){
-							System.err.println("Code not working. This is totally an error. This is the one and only error.");
+							System.out.println("No possibilities at "+x+" "+y);
 							System.exit(0);
-							//printBoard();
+							//printBoard(board);
 						}
 					}
 				}
@@ -144,7 +172,15 @@ public class GoodSudokuSolver {
 		}
 	}
 
-	public static SudokuNumber[][] guess(int x, int y){
+	
+	
+	
+	
+	
+	
+	
+	public static SudokuNumber[][] guess(SudokuNumber[][] board, int x, int y){
+		System.out.println("Guessing: "+x+" "+y);
 		SudokuNumber[][] newBoard;
 		SudokuNumber[][] lastNewBoard;
 		newBoard = new SudokuNumber[9][9];
@@ -155,6 +191,7 @@ public class GoodSudokuSolver {
 				newBoard[i][j].possibilities = board[i][j].possibilities;
 			}
 		}
+	
 		lastNewBoard = new SudokuNumber[9][9];
 		for (int i = 0; i < board.length; i++) {
 			for (int j = 0; j < board.length; j++) {
@@ -164,13 +201,22 @@ public class GoodSudokuSolver {
 			}
 		}
 		newBoard[x][y].num = newBoard[x][y].getPossibilities().get(0);
+		lastNewBoard[0][0].num = 10;
 		boolean completed = false;
 		boolean working = true;
 		while(!completed && working){
-			working = guessAtReducingNumbers(newBoard, lastNewBoard);
-			completed = isFull();
-			printBoard();
+			//working is false if any number runs out of possibilities 
+			DumbPair d = guessAtReducingNumbers(newBoard, lastNewBoard);
+			working = d.isBool();
+			lastNewBoard = d.getLast();
+			if(d.isGuessMade()){
+				newBoard = d.getArray();
+			}
+			//completed is the same as "is the board full"
+			completed = isFull(newBoard);
+			//printBoard(newBoard);
 		}
+		
 		if(working){
 			return newBoard;
 		} else{
@@ -178,12 +224,20 @@ public class GoodSudokuSolver {
 		}
 	}
 	
-	public static boolean guessAtReducingNumbers(SudokuNumber[][] newBoard, SudokuNumber[][] lastNewBoard){
+	
+	
+	
+	
+	
+	
+	
+	public static DumbPair guessAtReducingNumbers(SudokuNumber[][] newBoard, SudokuNumber[][] lastNewBoard){
+		boolean guessMade = false;
+		boolean guessFailed = false;
 		boolean geves = true;
 		for (int i = 0; i < newBoard.length; i++) {
 			for (int j = 0; j < newBoard.length; j++) {
 				if(newBoard[i][j].num!=lastNewBoard[i][j].num){
-					System.out.println(newBoard[i][j]+"x"+lastNewBoard[i][j]);
 					geves = false;
 				}
 			}
@@ -194,22 +248,34 @@ public class GoodSudokuSolver {
 			for (int i = 2; i < 9; i++) {
 				for (int j = 0; j < newBoard.length; j++) {
 					for (int k = 0; k < newBoard.length; k++) {
+						//System.out.println(x+" "+newBoard[j][k].num+" "+newBoard[j][k].getPossibilities().size()+" "+i);
+						//System.out.println(newBoard[j][k].num+" "+newBoard[j][k].getPossibilities()+" "+j+" "+k);
+						//System.out.println(newBoard[j][k].getPossibilities());
+						//System.out.println();
 						if(x==-1&&newBoard[j][k].num==0&&newBoard[j][k].getPossibilities().size() == i){
 							x = j;
 							y = k;
+							System.out.println("X: " + x);
+							System.out.println("Y: " + y);
 						}
 					}
 				}
 			}
 			if(x!=-1){
-				SudokuNumber[][] result = guess(x,y);
+				System.out.println("guessing guessing "+x);
+				SudokuNumber[][] result = guess(newBoard,x,y);
+				guessMade = true;
+				System.out.println("meme #"+result.length);
+				guessFailed = result.length == 1;
 				if(result.length == 1){
 					newBoard[x][y].getPossibilities().remove(0);
 				} else {
 					newBoard = result;
 				}
 			} else {
-				System.err.println("Code not working. This is totally an error. You're turning into a penguin. Stop it.");
+				System.out.println("x is -1");
+				System.out.println(Arrays.toString(Thread.currentThread().getStackTrace()));
+				System.exit(0);
 			}
 		}
 		else{
@@ -233,20 +299,32 @@ public class GoodSudokuSolver {
 							temp.add(e);
 						}
 						temp.removeAll(cant);
+						System.out.println("temp: " + temp);
 						newBoard[x][y].setPossibilities(temp);
 						if(newBoard[x][y].getPossibilities().size()==1){
 							newBoard[x][y].setNum(newBoard[x][y].getPossibilities().get(0));
 						} else if(newBoard[x][y].getPossibilities().size() == 0){
-							return false;
+							//System.out.println("Iffleflip");
+							//printBoard(newBoard);
+							return new DumbPair(false, false, false, newBoard, lastNewBoard);
 						}
 					}
 				}
 			}
 		}
-		return true;
+		
+		return new DumbPair(true, guessMade, guessFailed, newBoard, lastNewBoard);
 	}
 	
-	public static void printBoard(){
+	
+	
+	
+	
+	
+	
+	
+	
+	public static void printBoard(SudokuNumber[][] board){
 		for (int i = 0; i < 13; i++) {
 			System.out.print("-");
 		}
@@ -273,11 +351,19 @@ public class GoodSudokuSolver {
 			System.out.println();
 		}
 	}
+	
+	
+	
+	
+	
+	
+	
 
-	public static boolean isFull(){
+	public static boolean isFull(SudokuNumber[][] board){
 		for (int i = 0; i < board.length; i++) {
 			for (int j = 0; j < board[0].length; j++) {
 				if(board[i][j].num == 0){
+					
 					return false;
 				}
 			}
@@ -285,6 +371,13 @@ public class GoodSudokuSolver {
 		return true;
 	}
 
+	
+	
+	
+	
+	
+	
+	
 	public static boolean equalBoards(){
 		for (int i = 0; i < board.length; i++) {
 			for (int j = 0; j < board.length; j++) {
